@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * their instance with eureka server.
  *
  * @author Karthik Ranganathan
- *
+ * EurekaINstanceConfig实现基类，增加了几个属性，没什么具体逻辑
  */
 public abstract class AbstractInstanceConfig implements EurekaInstanceConfig {
     private static final Logger logger = LoggerFactory.getLogger(AbstractInstanceConfig.class);
@@ -41,14 +41,38 @@ public abstract class AbstractInstanceConfig implements EurekaInstanceConfig {
      */
     @Deprecated
     public static final String DEFAULT_NAMESPACE = CommonConstants.DEFAULT_CONFIG_NAMESPACE;
-    
+
+    /**
+     * 租约过期时间
+     */
     private static final int LEASE_EXPIRATION_DURATION_SECONDS = 90;
+    /**
+     * 租约租约频率
+     */
     private static final int LEASE_RENEWAL_INTERVAL_SECONDS = 30;
+    /**
+     * HTTPS端口是否关闭
+     */
     private static final boolean SECURE_PORT_ENABLED = false;
+    /**
+     * HTTP端口是否关闭
+     */
     private static final boolean NON_SECURE_PORT_ENABLED = true;
+    /**
+     * http端口
+     */
     private static final int NON_SECURE_PORT = 80;
+    /**
+     * https端口
+     */
     private static final int SECURE_PORT = 443;
+    /**
+     * 初始化后是否开启
+     */
     private static final boolean INSTANCE_ENABLED_ON_INIT = false;
+    /**
+     * 主机信息 key为ip地址，value为主机名
+     */
     private static final Pair<String, String> hostInfo = getHostInfo();
     private DataCenterInfo info = new DataCenterInfo() {
         @Override

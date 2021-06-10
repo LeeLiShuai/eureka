@@ -35,7 +35,7 @@ import com.netflix.eureka.aws.AwsBindingStrategy;
  * </p>
  *
  * @author Karthik Ranganathan
- *
+ * eureka-server配置类
  */
 public interface EurekaServerConfig {
 
@@ -45,6 +45,7 @@ public interface EurekaServerConfig {
      * appropriate AWS permissions to bind the EIP.
      *
      * @return
+     * 亚马逊云服务器相关，忽略
      */
     String getAWSAccessId();
 
@@ -54,6 +55,7 @@ public interface EurekaServerConfig {
      * appropriate AWS permissions to bind the EIP.
      *
      * @return
+     * 亚马逊云服务器相关，忽略
      */
     String getAWSSecretKey();
 

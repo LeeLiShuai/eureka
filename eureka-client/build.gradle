@@ -18,7 +18,7 @@ dependencies {
     compile "com.google.code.findbugs:jsr305:${jsr305Version}"
     compile "commons-configuration:commons-configuration:${commonsConfigurationVersion}"
     compile "com.google.inject:guice:${guiceVersion}"
-
+    compile 'javax.annotation:javax.annotation-api:1.2'
     compile "com.github.vlsi.compactmap:compactmap:2.0"
 
     compile "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"

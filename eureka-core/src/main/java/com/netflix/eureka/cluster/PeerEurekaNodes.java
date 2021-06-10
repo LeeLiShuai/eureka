@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
  * Helper class to manage lifecycle of a collection of {@link PeerEurekaNode}s.
  *
  * @author Tomasz Bak
+ * server集群节点结合
  */
 @Singleton
 public class PeerEurekaNodes {
@@ -73,6 +74,7 @@ public class PeerEurekaNodes {
     }
 
     public void start() {
+        //单个线程的线程池
         taskExecutor = Executors.newSingleThreadScheduledExecutor(
                 new ThreadFactory() {
                     @Override
@@ -84,7 +86,9 @@ public class PeerEurekaNodes {
                 }
         );
         try {
+            //更新集群节点集合数据
             updatePeerEurekaNodes(resolvePeerUrls());
+            //固定式更新集群节点集合数据，定时10min执行一次
             Runnable peersUpdateTask = new Runnable() {
                 @Override
                 public void run() {

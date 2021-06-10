@@ -50,7 +50,7 @@ import com.netflix.discovery.shared.transport.EurekaTransportConfig;
  * </p>
  *
  * @author Karthik Ranganathan
- *
+ * eureka客户端配置
  */
 @ImplementedBy(DefaultEurekaClientConfig.class)
 public interface EurekaClientConfig {

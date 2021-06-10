@@ -46,12 +46,21 @@ import static com.netflix.appinfo.PropertyBasedInstanceConfigConstants.*;
  * </p>
  *
  * @author Karthik Ranganathan
- *
+ * 基于配置文件的与应用实例配置抽象基类
  */
 public abstract class PropertiesInstanceConfig extends AbstractInstanceConfig implements EurekaInstanceConfig {
 
+    /**
+     * 命名空间
+     */
     protected final String namespace;
+    /**
+     * 配置文件
+     */
     protected final DynamicPropertyFactory configInstance;
+    /**
+     * 应用分组
+     */
     private String appGrpNameFromEnv;
 
     public PropertiesInstanceConfig() {

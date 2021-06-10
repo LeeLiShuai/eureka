@@ -37,7 +37,7 @@ import com.google.inject.ImplementedBy;
  * </p>
  *
  * @author Karthik Ranganathan
- *
+ * eureka应用实例配置接口
  */
 @ImplementedBy(CloudInstanceConfig.class)
 public interface EurekaInstanceConfig {
@@ -121,6 +121,7 @@ public interface EurekaInstanceConfig {
      * </p>
      *
      * @return time in seconds
+     * 租约续约频率
      */
     int getLeaseRenewalIntervalInSeconds();
 
@@ -139,6 +140,7 @@ public interface EurekaInstanceConfig {
      * </p>
      *
      * @return value indicating time in seconds.
+     * 租约过期时间
      */
     int getLeaseExpirationDurationInSeconds();
 

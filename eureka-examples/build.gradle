@@ -3,6 +3,7 @@ apply plugin: 'application'
 dependencies {
     compile project(':eureka-client')
     compile files('conf')
+    compile 'javax.annotation:javax.annotation-api:1.2'
 
     compile "com.netflix.governator:governator:${governatorVersion}"
     runtimeOnly 'org.slf4j:slf4j-simple:1.7.7'

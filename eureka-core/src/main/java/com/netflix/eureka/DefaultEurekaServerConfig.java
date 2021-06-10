@@ -59,7 +59,7 @@ import org.slf4j.LoggerFactory;
  * </p>
  *
  * @author Karthik Ranganathan
- *
+ * eureka-server配置实现类
  */
 @Singleton
 public class DefaultEurekaServerConfig implements EurekaServerConfig {

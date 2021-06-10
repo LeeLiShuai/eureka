@@ -41,10 +41,25 @@ import javax.inject.Singleton;
 public class DefaultEurekaServerContext implements EurekaServerContext {
     private static final Logger logger = LoggerFactory.getLogger(DefaultEurekaServerContext.class);
 
+    /**
+     * server配置
+     */
     private final EurekaServerConfig serverConfig;
+    /**
+     * 编码解码器
+     */
     private final ServerCodecs serverCodecs;
+    /**
+     * 注册表
+     */
     private final PeerAwareInstanceRegistry registry;
+    /**
+     * 集群节点集合
+     */
     private final PeerEurekaNodes peerEurekaNodes;
+    /**
+     * 应用实例管理器
+     */
     private final ApplicationInfoManager applicationInfoManager;
 
     @Inject
@@ -60,12 +75,17 @@ public class DefaultEurekaServerContext implements EurekaServerContext {
         this.applicationInfoManager = applicationInfoManager;
     }
 
+    /**
+     * 初始化方法
+     */
     @PostConstruct
     @Override
     public void initialize() {
         logger.info("Initializing ...");
+        //启动集群节点集合
         peerEurekaNodes.start();
         try {
+            //初始化注册表
             registry.init(peerEurekaNodes);
         } catch (Exception e) {
             throw new RuntimeException(e);

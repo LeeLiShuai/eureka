@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  *
  *
  * @author Karthik Ranganathan, Greg Kim
- *
+ * 应用信息管理器
  */
 @Singleton
 public class ApplicationInfoManager {
@@ -57,10 +57,21 @@ public class ApplicationInfoManager {
 
     private static ApplicationInfoManager instance = new ApplicationInfoManager(null, null, null);
 
+    /**
+     * 状态变更监听器集合
+     */
     protected final Map<String, StatusChangeListener> listeners;
+    /**
+     * 应用实例状态匹配
+     */
     private final InstanceStatusMapper instanceStatusMapper;
-
+    /**
+     * 应用实例信息
+     */
     private InstanceInfo instanceInfo;
+    /**
+     * 应用实例配置
+     */
     private EurekaInstanceConfig config;
 
     public static class OptionalArgs {

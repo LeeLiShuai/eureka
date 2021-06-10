@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  * and ApplicationInfoManager, and need to provide the same InstanceInfo to both.
  *
  * @author elandau
- *
+ * 用于创建InstanceInfo
  */
 @Singleton
 public class EurekaConfigBasedInstanceInfoProvider implements Provider<InstanceInfo> {
@@ -42,22 +42,29 @@ public class EurekaConfigBasedInstanceInfoProvider implements Provider<InstanceI
         this.config = config;
     }
 
+    /**
+     * 获取InstanceInfo
+     * @return
+     */
     @Override
     public synchronized InstanceInfo get() {
         if (instanceInfo == null) {
             // Build the lease information to be passed to the server based on config
+            //创建租约的构造器，配置一些属性
             LeaseInfo.Builder leaseInfoBuilder = LeaseInfo.Builder.newBuilder()
                     .setRenewalIntervalInSecs(config.getLeaseRenewalIntervalInSeconds())
                     .setDurationInSecs(config.getLeaseExpirationDurationInSeconds());
-
+            //vip地址解析器
             if (vipAddressResolver == null) {
                 vipAddressResolver = new Archaius1VipAddressResolver();
             }
 
             // Builder the instance information to be registered with eureka server
+            //创建应用实例信息构造器
             InstanceInfo.Builder builder = InstanceInfo.Builder.newBuilder(vipAddressResolver);
 
             // set the appropriate id for the InstanceInfo, falling back to datacenter Id if applicable, else hostname
+            //应用实例编号
             String instanceId = config.getInstanceId();
             if (instanceId == null || instanceId.isEmpty()) {
                 DataCenterInfo dataCenterInfo = config.getDataCenterInfo();
@@ -67,7 +74,7 @@ public class EurekaConfigBasedInstanceInfoProvider implements Provider<InstanceI
                     instanceId = config.getHostName(false);
                 }
             }
-
+            //主机名
             String defaultAddress;
             if (config instanceof RefreshableInstanceConfig) {
                 // Refresh AWS data center info, and return up to date address
@@ -80,7 +87,7 @@ public class EurekaConfigBasedInstanceInfoProvider implements Provider<InstanceI
             if (defaultAddress == null || defaultAddress.isEmpty()) {
                 defaultAddress = config.getIpAddress();
             }
-
+            //设置应用实例信息构造器的属性
             builder.setNamespace(config.getNamespace())
                     .setInstanceId(instanceId)
                     .setAppName(config.getAppname())
@@ -121,7 +128,7 @@ public class EurekaConfigBasedInstanceInfoProvider implements Provider<InstanceI
                     builder.add(key, value);
                 }
             }
-
+            //使用构造器创建instanceinfo
             instanceInfo = builder.build();
             instanceInfo.setLeaseInfo(leaseInfoBuilder.build());
         }
