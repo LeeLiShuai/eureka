@@ -24,17 +24,33 @@ import java.util.concurrent.atomic.AtomicReference;
  *   on-demand update).
  *
  *   @author dliu
+ *   应用实例信息复制器
  */
 class InstanceInfoReplicator implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(InstanceInfoReplicator.class);
-
+    /**
+     * 客户端
+     */
     private final DiscoveryClient discoveryClient;
+    /**
+     * 实例信息
+     */
     private final InstanceInfo instanceInfo;
-
+    /**
+     * 定时执行频率
+     */
     private final int replicationIntervalSeconds;
+    /**
+     * 线程池
+     */
     private final ScheduledExecutorService scheduler;
+    /**
+     * 定时执行的任务
+     */
     private final AtomicReference<Future> scheduledPeriodicRef;
-
+    /**
+     * 是否开启调度
+     */
     private final AtomicBoolean started;
     private final RateLimiter rateLimiter;
     private final int burstSize;
@@ -60,6 +76,10 @@ class InstanceInfoReplicator implements Runnable {
         logger.info("InstanceInfoReplicator onDemand update allowed rate per min is {}", allowedRatePerMinute);
     }
 
+    /**
+     * 开启调度
+     * @param initialDelayMs
+     */
     public void start(int initialDelayMs) {
         if (started.compareAndSet(false, true)) {
             instanceInfo.setIsDirty();  // for initial register
@@ -84,20 +104,25 @@ class InstanceInfoReplicator implements Runnable {
         }
     }
 
+    /**
+     * 状态发生变化且不是首次启动
+     * @return
+     */
     public boolean onDemandUpdate() {
         if (rateLimiter.acquire(burstSize, allowedRatePerMinute)) {
             if (!scheduler.isShutdown()) {
+                //提交任务
                 scheduler.submit(new Runnable() {
                     @Override
                     public void run() {
                         logger.debug("Executing on-demand update of local InstanceInfo");
-    
+                        //获取当前执行的任务，取消
                         Future latestPeriodic = scheduledPeriodicRef.get();
                         if (latestPeriodic != null && !latestPeriodic.isDone()) {
                             logger.debug("Canceling the latest scheduled update, it will be rescheduled at the end of on demand update");
                             latestPeriodic.cancel(false);
                         }
-    
+                        //执行run方法
                         InstanceInfoReplicator.this.run();
                     }
                 });
@@ -112,18 +137,24 @@ class InstanceInfoReplicator implements Runnable {
         }
     }
 
+    /**
+     * 线程执行的方法
+     */
     public void run() {
         try {
+            //调用客户端的刷新应用实例方法
             discoveryClient.refreshInstanceInfo();
-
+            //判断应用信息实例数据是否一致，一般来说应该是不一致的
             Long dirtyTimestamp = instanceInfo.isDirtyWithTime();
             if (dirtyTimestamp != null) {
+                //注册
                 discoveryClient.register();
                 instanceInfo.unsetIsDirty(dirtyTimestamp);
             }
         } catch (Throwable t) {
             logger.warn("There was a problem with the instance info replicator", t);
         } finally {
+            //提交任务
             Future next = scheduler.schedule(this, replicationIntervalSeconds, TimeUnit.SECONDS);
             scheduledPeriodicRef.set(next);
         }

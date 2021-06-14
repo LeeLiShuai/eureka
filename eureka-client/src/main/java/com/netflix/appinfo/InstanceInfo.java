@@ -1165,6 +1165,7 @@ public class InstanceInfo {
      *
      * @param status status for this instance.
      * @return the prev status if a different status from the current was set, null otherwise
+     * 设置实例的状态
      */
     public synchronized InstanceStatus setStatus(InstanceStatus status) {
         if (this.status != status) {
@@ -1241,6 +1242,7 @@ public class InstanceInfo {
     /**
      * Sets the dirty flag so that the instance information can be carried to
      * the discovery server on the next heartbeat.
+     * 实例的状态发生改变，标志数据为脏数据，下次发送心跳时需要发送给注册中心
      */
     public synchronized void setIsDirty() {
         isInstanceInfoDirty = true;

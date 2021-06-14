@@ -29,6 +29,7 @@ import com.netflix.eureka.registry.AbstractInstanceRegistry;
  * {@link T} and {@link LeaseManager}.
  *
  * @author Karthik Ranganathan, Greg Kim
+ * 租约
  */
 public class Lease<T> {
 
@@ -38,12 +39,30 @@ public class Lease<T> {
 
     public static final int DEFAULT_DURATION_IN_SECS = 90;
 
+    /**
+     * 租约的持有者，一般是instanceinfo
+     */
     private T holder;
+    /**
+     * 取消注册的时间戳
+     */
     private long evictionTimestamp;
+    /**
+     *注册的时间戳
+     */
     private long registrationTimestamp;
+    /**
+     * 开始服务时间戳
+     */
     private long serviceUpTimestamp;
     // Make it volatile so that the expiration task would see this quicker
+    /**
+     * 上次更新时间戳
+     */
     private volatile long lastUpdateTimestamp;
+    /**
+     * 租约持续时长
+     */
     private long duration;
 
     public Lease(T r, int durationInSecs) {

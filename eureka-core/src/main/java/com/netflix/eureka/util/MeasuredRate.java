@@ -26,15 +26,29 @@ import org.slf4j.LoggerFactory;
  * Utility class for getting a count in last X milliseconds.
  *
  * @author Karthik Ranganathan,Greg Kim
+ * 每分钟续约次数
  */
 public class MeasuredRate {
     private static final Logger logger = LoggerFactory.getLogger(MeasuredRate.class);
+    /**
+     * 上一个间隔次数
+     */
     private final AtomicLong lastBucket = new AtomicLong(0);
+    /**
+     * 当前间隔次数
+     */
     private final AtomicLong currentBucket = new AtomicLong(0);
-
+    /**
+     * 间隔
+     */
     private final long sampleInterval;
+    /**
+     * 定时器
+     */
     private final Timer timer;
-
+    /**
+     * 是否存活
+     */
     private volatile boolean isActive;
 
     /**

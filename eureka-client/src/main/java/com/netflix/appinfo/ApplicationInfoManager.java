@@ -174,6 +174,7 @@ public class ApplicationInfoManager {
      * of a status change event.
      *
      * @param status Status of the instance
+     * 设置实例的状态
      */
     public synchronized void setInstanceStatus(InstanceStatus status) {
         InstanceStatus next = instanceStatusMapper.map(status);
@@ -182,6 +183,7 @@ public class ApplicationInfoManager {
         }
 
         InstanceStatus prev = instanceInfo.setStatus(next);
+        //之前的状态不是空，说明不是首次启动
         if (prev != null) {
             for (StatusChangeListener listener : listeners.values()) {
                 try {
@@ -193,6 +195,10 @@ public class ApplicationInfoManager {
         }
     }
 
+    /**
+     * 将监听器添加到集合中
+     * @param listener
+     */
     public void registerStatusChangeListener(StatusChangeListener listener) {
         listeners.put(listener.getId(), listener);
     }
@@ -207,10 +213,11 @@ public class ApplicationInfoManager {
      * server on next heartbeat.
      *
      * see {@link InstanceInfo#getHostName()} for explanation on why the hostname is used as the default address
+     * 刷新数据中心数据
      */
     public void refreshDataCenterInfoIfRequired() {
+        //hostname
         String existingAddress = instanceInfo.getHostName();
-
         String existingSpotInstanceAction = null;
         if (instanceInfo.getDataCenterInfo() instanceof AmazonInfo) {
             existingSpotInstanceAction = ((AmazonInfo) instanceInfo.getDataCenterInfo()).get(AmazonInfo.MetaDataKey.spotInstanceAction);
@@ -223,13 +230,12 @@ public class ApplicationInfoManager {
         } else {
             newAddress = config.getHostName(true);
         }
+        //ip
         String newIp = config.getIpAddress();
-
         if (newAddress != null && !newAddress.equals(existingAddress)) {
             logger.warn("The address changed from : {} => {}", existingAddress, newAddress);
             updateInstanceInfo(newAddress, newIp);
         }
-
         if (config.getDataCenterInfo() instanceof AmazonInfo) {
             String newSpotInstanceAction = ((AmazonInfo) config.getDataCenterInfo()).get(AmazonInfo.MetaDataKey.spotInstanceAction);
             if (newSpotInstanceAction != null && !newSpotInstanceAction.equals(existingSpotInstanceAction)) {
@@ -238,7 +244,7 @@ public class ApplicationInfoManager {
                         newSpotInstanceAction));
                 updateInstanceInfo(null , null );
             }
-        }        
+        }
     }
 
     private void updateInstanceInfo(String newAddress, String newIp) {
@@ -256,12 +262,17 @@ public class ApplicationInfoManager {
         instanceInfo.setIsDirty();
     }
 
+    /**
+     * 刷新租约
+     */
     public void refreshLeaseInfoIfRequired() {
         LeaseInfo leaseInfo = instanceInfo.getLeaseInfo();
         if (leaseInfo == null) {
             return;
         }
+        //当前租约的持续时长
         int currentLeaseDuration = config.getLeaseExpirationDurationInSeconds();
+        //单签租约的续签时间
         int currentLeaseRenewal = config.getLeaseRenewalIntervalInSeconds();
         if (leaseInfo.getDurationInSecs() != currentLeaseDuration || leaseInfo.getRenewalIntervalInSecs() != currentLeaseRenewal) {
             LeaseInfo newLeaseInfo = LeaseInfo.Builder.newBuilder()
