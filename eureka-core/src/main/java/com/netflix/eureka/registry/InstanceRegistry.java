@@ -14,6 +14,7 @@ import java.util.Map;
 
 /**
  * @author Tomasz Bak
+ * 应用实例注册表
  */
 public interface InstanceRegistry extends LeaseManager<InstanceInfo>, LookupService<String> {
 

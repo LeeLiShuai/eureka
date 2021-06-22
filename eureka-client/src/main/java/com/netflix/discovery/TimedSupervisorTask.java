@@ -32,12 +32,29 @@ public class TimedSupervisorTask extends TimerTask {
     private final LongGauge threadPoolLevelGauge;
 
     private final String name;
+    /**
+     * 线程池
+     */
     private final ScheduledExecutorService scheduler;
+    /**
+     * 子任务线程池
+     */
     private final ThreadPoolExecutor executor;
+    /**
+     * 子任务超时时间
+     */
     private final long timeoutMillis;
+    /**
+     * 子任务
+     */
     private final Runnable task;
-
+    /**
+     * 子任务执行频率
+     */
     private final AtomicLong delay;
+    /**
+     * 最大子任务执行频率,超时的时候使用
+     */
     private final long maxDelay;
 
     public TimedSupervisorTask(String name, ScheduledExecutorService scheduler, ThreadPoolExecutor executor,
@@ -63,6 +80,7 @@ public class TimedSupervisorTask extends TimerTask {
     public void run() {
         Future<?> future = null;
         try {
+            //提交到线程池
             future = executor.submit(task);
             threadPoolLevelGauge.set((long) executor.getActiveCount());
             future.get(timeoutMillis, TimeUnit.MILLISECONDS);  // block until done or timeout
@@ -94,10 +112,11 @@ public class TimedSupervisorTask extends TimerTask {
 
             throwableCounter.increment();
         } finally {
+            //取消超时未完成的任务
             if (future != null) {
                 future.cancel(true);
             }
-
+            //最终，线程池把自己延迟一段时间后重新执行
             if (!scheduler.isShutdown()) {
                 scheduler.schedule(this, delay.get(), TimeUnit.MILLISECONDS);
             }

@@ -382,6 +382,7 @@ public class PeerAwareInstanceRegistryImpl extends AbstractInstanceRegistry impl
      *
      * @see com.netflix.eureka.registry.InstanceRegistry#cancel(java.lang.String,
      * java.lang.String, long, boolean)
+     * 下线
      */
     @Override
     public boolean cancel(final String appName, final String id,
@@ -404,14 +405,18 @@ public class PeerAwareInstanceRegistryImpl extends AbstractInstanceRegistry impl
      * @param isReplication
      *            true if this is a replication event from other replica nodes,
      *            false otherwise.
+     *  接受注册请求的实现
      */
     @Override
     public void register(final InstanceInfo info, final boolean isReplication) {
+        //租约有效时间
         int leaseDuration = Lease.DEFAULT_DURATION_IN_SECS;
         if (info.getLeaseInfo() != null && info.getLeaseInfo().getDurationInSecs() > 0) {
             leaseDuration = info.getLeaseInfo().getDurationInSecs();
         }
+        //注册
         super.register(info, leaseDuration, isReplication);
+        //复制到其他注册中心节点
         replicateToPeers(Action.Register, info.getAppName(), info.getId(), info, null, isReplication);
     }
 
@@ -420,8 +425,10 @@ public class PeerAwareInstanceRegistryImpl extends AbstractInstanceRegistry impl
      *
      * @see com.netflix.eureka.registry.InstanceRegistry#renew(java.lang.String,
      * java.lang.String, long, boolean)
+     * 续约
      */
     public boolean renew(final String appName, final String id, final boolean isReplication) {
+        //调用父类续约方法，然后复制到其他节点
         if (super.renew(appName, id, isReplication)) {
             replicateToPeers(Action.Heartbeat, appName, id, null, null, isReplication);
             return true;
