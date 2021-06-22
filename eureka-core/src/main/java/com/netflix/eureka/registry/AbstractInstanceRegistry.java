@@ -1210,11 +1210,15 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
     }
 
     protected void postInit() {
+        //计数器
         renewsLastMin.start();
+        //取消上个任务
         if (evictionTaskRef.get() != null) {
             evictionTaskRef.get().cancel();
         }
+        //设置新任务
         evictionTaskRef.set(new EvictionTask());
+        //定期执行新任务
         evictionTimer.schedule(evictionTaskRef.get(),
                 serverConfig.getEvictionIntervalTimerInMs(),
                 serverConfig.getEvictionIntervalTimerInMs());

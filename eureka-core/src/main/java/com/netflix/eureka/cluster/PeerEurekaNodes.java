@@ -128,15 +128,16 @@ public class PeerEurekaNodes {
 
     /**
      * Resolve peer URLs.
-     *
      * @return peer URLs with node's own URL filtered out
+     * 获取server集群除自己外的地址集合
      */
     protected List<String> resolvePeerUrls() {
+        //获取集群server地址集合
         InstanceInfo myInfo = applicationInfoManager.getInfo();
         String zone = InstanceInfo.getZone(clientConfig.getAvailabilityZones(clientConfig.getRegion()), myInfo);
         List<String> replicaUrls = EndpointUtils
                 .getDiscoveryServiceUrls(clientConfig, zone, new EndpointUtils.InstanceInfoBasedUrlRandomizer(myInfo));
-
+        //去除自己
         int idx = 0;
         while (idx < replicaUrls.size()) {
             if (isThisMyUrl(replicaUrls.get(idx))) {
@@ -151,20 +152,21 @@ public class PeerEurekaNodes {
     /**
      * Given new set of replica URLs, destroy {@link PeerEurekaNode}s no longer available, and
      * create new ones.
-     *
      * @param newPeerUrls peer node URLs; this collection should have local node's URL filtered out
+     * 更新集群节点信息
      */
     protected void updatePeerEurekaNodes(List<String> newPeerUrls) {
         if (newPeerUrls.isEmpty()) {
             logger.warn("The replica size seems to be empty. Check the route 53 DNS Registry");
             return;
         }
-
+        //需要删除的
         Set<String> toShutdown = new HashSet<>(peerEurekaNodeUrls);
         toShutdown.removeAll(newPeerUrls);
+        //需要新增的
         Set<String> toAdd = new HashSet<>(newPeerUrls);
         toAdd.removeAll(peerEurekaNodeUrls);
-
+        //既不新增也不删除，直接返回
         if (toShutdown.isEmpty() && toAdd.isEmpty()) { // No change
             return;
         }
@@ -172,6 +174,7 @@ public class PeerEurekaNodes {
         // Remove peers no long available
         List<PeerEurekaNode> newNodeList = new ArrayList<>(peerEurekaNodes);
 
+        //删除
         if (!toShutdown.isEmpty()) {
             logger.info("Removing no longer available peer nodes {}", toShutdown);
             int i = 0;
@@ -186,14 +189,14 @@ public class PeerEurekaNodes {
             }
         }
 
-        // Add new peers
+        //新增
         if (!toAdd.isEmpty()) {
             logger.info("Adding new peer nodes {}", toAdd);
             for (String peerUrl : toAdd) {
                 newNodeList.add(createPeerEurekaNode(peerUrl));
             }
         }
-
+        //重新赋值属性
         this.peerEurekaNodes = newNodeList;
         this.peerEurekaNodeUrls = new HashSet<>(newPeerUrls);
     }
