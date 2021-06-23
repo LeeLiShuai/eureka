@@ -360,10 +360,10 @@ public class DiscoveryClient implements EurekaClient {
 
     /**
      * 最终执行的构造函数
-     * @param applicationInfoManager
-     * @param config
+     * @param applicationInfoManager 应用实例管理器
+     * @param config client配置信息
      * @param args
-     * @param backupRegistryProvider
+     * @param backupRegistryProvider 备份注册表提供者
      * @param endpointRandomizer
      */
     @Inject
