@@ -181,7 +181,6 @@ public class ApplicationInfoManager {
         if (next == null) {
             return;
         }
-
         InstanceStatus prev = instanceInfo.setStatus(next);
         //之前的状态不是空，说明不是首次启动
         if (prev != null) {
@@ -211,7 +210,6 @@ public class ApplicationInfoManager {
      * Refetches the hostname to check if it has changed. If it has, the entire
      * <code>DataCenterInfo</code> is refetched and passed on to the eureka
      * server on next heartbeat.
-     *
      * see {@link InstanceInfo#getHostName()} for explanation on why the hostname is used as the default address
      * 刷新数据中心数据
      */
@@ -234,6 +232,7 @@ public class ApplicationInfoManager {
         String newIp = config.getIpAddress();
         if (newAddress != null && !newAddress.equals(existingAddress)) {
             logger.warn("The address changed from : {} => {}", existingAddress, newAddress);
+            //ip地址发生变化，一般情况下不会发生变化
             updateInstanceInfo(newAddress, newIp);
         }
         if (config.getDataCenterInfo() instanceof AmazonInfo) {

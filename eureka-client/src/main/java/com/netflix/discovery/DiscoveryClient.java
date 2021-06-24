@@ -1380,7 +1380,7 @@ public class DiscoveryClient implements EurekaClient {
             int expBackOffBound = clientConfig.getHeartbeatExecutorExponentialBackOffBound();
             logger.info("Starting heartbeat executor: " + "renew interval is: {}", renewalIntervalInSecs);
 
-            //心跳任务
+            //心跳任务，即续约
             heartbeatTask = new TimedSupervisorTask(
                     "heartbeat",
                     scheduler,
@@ -1491,10 +1491,10 @@ public class DiscoveryClient implements EurekaClient {
     /**
      * Refresh the current local instanceInfo. Note that after a valid refresh where changes are observed, the
      * isDirty flag on the instanceInfo is set to true
-     * 刷新应用实例信息
+     * 刷新应用实例信息，在复制器的run方法中被调用
      */
     void refreshInstanceInfo() {
-        //刷新数据中心数据
+        //刷新数据中心数据，主要监测本机ip，一般不会发生变化
         applicationInfoManager.refreshDataCenterInfoIfRequired();
         //刷新租约信息
         applicationInfoManager.refreshLeaseInfoIfRequired();

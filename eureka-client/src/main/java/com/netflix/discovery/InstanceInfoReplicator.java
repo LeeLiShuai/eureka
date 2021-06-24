@@ -82,7 +82,8 @@ class InstanceInfoReplicator implements Runnable {
      */
     public void start(int initialDelayMs) {
         if (started.compareAndSet(false, true)) {
-            instanceInfo.setIsDirty();  // for initial register
+            //设置为何服务端数据不一致，为了run方法中的发送注册请求
+            instanceInfo.setIsDirty();
             Future next = scheduler.schedule(this, initialDelayMs, TimeUnit.SECONDS);
             scheduledPeriodicRef.set(next);
         }
