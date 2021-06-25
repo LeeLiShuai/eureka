@@ -625,6 +625,7 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
         // We collect first all expired items, to evict them in random order. For large eviction sets,
         // if we do not that, we might wipe out whole apps before self preservation kicks in. By randomizing it,
         // the impact should be evenly distributed across all applications.
+        //获取所有过期租约
         List<Lease<InstanceInfo>> expiredLeases = new ArrayList<>();
         for (Entry<String, Map<String, Lease<InstanceInfo>>> groupEntry : registry.entrySet()) {
             Map<String, Lease<InstanceInfo>> leaseMap = groupEntry.getValue();
@@ -640,14 +641,15 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
 
         // To compensate for GC pauses or drifting local time, we need to use current registry size as a base for
         // triggering self-preservation. Without that we would wipe out full registry.
+        //计算最大允许清理租约数量
         int registrySize = (int) getLocalRegistrySize();
         int registrySizeThreshold = (int) (registrySize * serverConfig.getRenewalPercentThreshold());
         int evictionLimit = registrySize - registrySizeThreshold;
-
+        //计算清理租约数量
         int toEvict = Math.min(expiredLeases.size(), evictionLimit);
         if (toEvict > 0) {
             logger.info("Evicting {} items (expired={}, evictionLimit={})", toEvict, expiredLeases.size(), evictionLimit);
-
+            //设置租约过期
             Random random = new Random(System.currentTimeMillis());
             for (int i = 0; i < toEvict; i++) {
                 // Pick a random item (Knuth shuffle algorithm)

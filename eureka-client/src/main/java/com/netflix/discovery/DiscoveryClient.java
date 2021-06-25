@@ -1066,11 +1066,13 @@ public class DiscoveryClient implements EurekaClient {
                 logger.info("Registered Applications size is zero : {}",
                         (applications.getRegisteredApplications().size() == 0));
                 logger.info("Application version is -1: {}", (applications.getVersion() == -1));
+                //全量获取
                 getAndStoreFullRegistry();
             } else {
-                //更新本地路由信息
+                //更新本地路由信息，增量获取
                 getAndUpdateDelta(applications);
             }
+            //设置应用集合的hashCode
             applications.setAppsHashCode(applications.getReconcileHashCode());
             logTotalInstances();
         } catch (Throwable e) {
@@ -1087,6 +1089,7 @@ public class DiscoveryClient implements EurekaClient {
         onCacheRefreshed();
 
         // Update remote status based on refreshed data held in the cache
+        //更新本地缓存的当前应用实例在 Eureka-Server 的状态
         updateInstanceRemoteStatus();
 
         // registry was fetched successfully, so return true
@@ -1153,6 +1156,7 @@ public class DiscoveryClient implements EurekaClient {
         logger.info("Getting all instance registry info from the eureka server");
 
         Applications apps = null;
+        //从server获取注册信息
         EurekaHttpResponse<Applications> httpResponse = clientConfig.getRegistryRefreshSingleVipAddress() == null
                 ? eurekaTransport.queryClient.getApplications(remoteRegionsRef.get())
                 : eurekaTransport.queryClient.getVip(clientConfig.getRegistryRefreshSingleVipAddress(), remoteRegionsRef.get());
@@ -1160,7 +1164,7 @@ public class DiscoveryClient implements EurekaClient {
             apps = httpResponse.getEntity();
         }
         logger.info("The response status is {}", httpResponse.getStatusCode());
-
+        //设置到本地缓存
         if (apps == null) {
             logger.error("The application is null for some reason. Not storing this information");
         } else if (fetchRegistryGeneration.compareAndSet(currentUpdateGeneration, currentUpdateGeneration + 1)) {
@@ -1407,7 +1411,7 @@ public class DiscoveryClient implements EurekaClient {
                 public String getId() {
                     return "statusChangeListener";
                 }
-                //状态发生变化且不是首次启动，调用此方法
+                //状态发生变化，调用此方法
                 @Override
                 public void notify(StatusChangeEvent statusChangeEvent) {
                     logger.info("Saw local status change event {}", statusChangeEvent);
@@ -1686,6 +1690,7 @@ public class DiscoveryClient implements EurekaClient {
      * @param apps
      *            The applications that needs to be filtered and shuffled.
      * @return The applications after the filter and the shuffle.
+     * 保留状态在线的实例，并打乱顺序保存
      */
     private Applications filterAndShuffle(Applications apps) {
         if (apps != null) {
